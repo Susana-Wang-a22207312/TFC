@@ -33,6 +33,20 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  var listCompliments =[
+    "Wow! You're such a smart cookie!",
+    "Great job! Keep up the effort",
+    "Amazingly done!",
+  ];
+
+  var currentCompliment = "";
+
+  void compliment(){
+    listCompliments.shuffle();
+    currentCompliment = listCompliments.first;
+    notifyListeners();
+  }
+
   var favorites = <WordPair>[];
 
   void toggleFavorite() {
@@ -145,6 +159,13 @@ class GeneratorPage extends StatelessWidget {
                 child: Text('Next'),
               ),
             ],
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              appState.compliment();
+            },
+            child: Text('Give Me a Compliment!'),
           ),
         ],
       ),
