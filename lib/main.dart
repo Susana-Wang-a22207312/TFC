@@ -33,7 +33,7 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  var listCompliments =[
+  var listCompliments = [
     "Wow! You're such a smart cookie!",
     "Great job! Keep up the effort",
     "Amazingly done!",
@@ -41,7 +41,7 @@ class MyAppState extends ChangeNotifier {
 
   var currentCompliment = "";
 
-  void compliment(){
+  void compliment() {
     listCompliments.shuffle();
     currentCompliment = listCompliments.first;
     notifyListeners();
@@ -58,7 +58,6 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 }
-
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -167,12 +166,17 @@ class GeneratorPage extends StatelessWidget {
             },
             child: Text('Give Me a Compliment!'),
           ),
+          SizedBox(height: 10),
+          Text(
+            appState.currentCompliment,
+            style: TextStyle(fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 }
-
 
 class BigCard extends StatelessWidget {
   const BigCard({
