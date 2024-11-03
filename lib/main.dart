@@ -36,7 +36,7 @@ class MyAppState extends ChangeNotifier {
   var listCompliments = [
     "Wow! You're such a smart cookie!",
     "Great job! Keep up the effort",
-    "Amazingly done!",
+    "Amazingly done!!!",
   ];
 
   var currentCompliment = "";
