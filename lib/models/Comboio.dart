@@ -10,7 +10,7 @@ class Comboio {
 
   List<String> obterEstacoesLinhaSintra() {
     return [
-      'Lisboa - Rossio',
+      'Lisboa -Rossio',
       'Lisboa - Entrecampos',
       'Lisboa - Sete Rios',
       'Praça de Espanha',
