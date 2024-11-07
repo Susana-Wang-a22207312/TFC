@@ -1,13 +1,10 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../main.dart';
 import '../models/Comboio.dart';
 
 void main() {
   runApp(MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -17,7 +14,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Comboios suzy',
+        title: 'Comboios Suzy',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0xADDFE0)),
@@ -29,12 +26,12 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-
   String estacao = "";
-
   List<Comboio> comboiosEstacao = [];
 
-  List<String> get obterEstacoesLinhaSintras => Comboio.obterEstacoesLinhaSintra();
+  // Assuming Comboio has the static methods you're referring to
+  List<String> get obterEstacoesLinhaSintras =>
+      Comboio.obterEstacoesLinhaSintra();
 
   void selectStation(String station) {
     estacao = station;
@@ -58,48 +55,32 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         page = GeneratorPage();
         break;
-      case 1:
-        page = FavoritesPage();
-        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Scaffold(
-        body: Row(
-          children: [
-            SafeArea(
-              child: NavigationRail(
-                extended: constraints.maxWidth >= 600,
-                destinations: [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.favorite),
-                    label: Text('Favorites'),
-                  ),
-                ],
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (value) {
-                  setState(() {
-                    selectedIndex = value;
-                  });
-                },
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          appBar: AppBar(title: Text('Comboios Suzy')),
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.home),
+                  title: Text('Home'),
+                  onTap: () {
+                    // You can handle navigation here
+                  },
+                ),
+              ],
             ),
-            Expanded(
-              child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: page,
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+          ),
+          body: page,
+        );
+      },
+    );
   }
 }
 
@@ -107,113 +88,49 @@ class GeneratorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
+          Text("Seleciona uma estação: "),
+          // DropdownButton for selecting station
+          DropdownButton<String>(
+            value: appState.estacao.isNotEmpty ? appState.estacao : null,
+            hint: Text("Estação"),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                appState.selectStation(newValue);
+              }
+            },
+            items: appState.obterEstacoesLinhaSintras
+                .map<DropdownMenuItem<String>>((String station) {
+              return DropdownMenuItem<String>(
+                value: station,
+                child: Text(station),
+              );
+            }).toList(),
           ),
           SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              appState.compliment();
-            },
-            child: Text('Give Me a Compliment!'),
-          ),
-          SizedBox(height: 10),
           Text(
-            appState.currentCompliment,
-            style: TextStyle(fontSize: 20),
-            textAlign: TextAlign.center,
+            "Próximos comboios:",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: appState.comboiosEstacao.length,
+              itemBuilder: (context, index) {
+                var comboio = appState.comboiosEstacao[index];
+                return ListTile(
+                  title: Text("Comboio ${comboio.id}   Destino: ${comboio.estacaoDestino}"),
+                  subtitle: Text(
+                      "Percentagem de ocupação: \nCarruagem 1: ${comboio.lotacao[0]}% \nCarruagem 2: ${comboio.lotacao[1]}% \nCarruagem 3: ${comboio.lotacao[2]}%"),
+                );
+              },
+            ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(
-          pair.asLowerCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
-        ),
-      ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
-      ],
     );
   }
 }

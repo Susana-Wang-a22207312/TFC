@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class Comboio {
   int id;
   String estacaoOrigem;
