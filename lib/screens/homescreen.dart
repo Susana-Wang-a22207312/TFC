@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/Comboio.dart';
+import '../screens/estacao.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,7 +30,6 @@ class MyAppState extends ChangeNotifier {
   String estacao = "";
   List<Comboio> comboiosEstacao = [];
 
-  // Assuming Comboio has the static methods you're referring to
   List<String> get obterEstacoesLinhaSintras =>
       Comboio.obterEstacoesLinhaSintra();
 
@@ -71,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   leading: Icon(Icons.home),
                   title: Text('Home'),
                   onTap: () {
-                    // You can handle navigation here
                   },
                 ),
               ],
@@ -94,13 +93,22 @@ class GeneratorPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("Seleciona uma estação: "),
-          // DropdownButton for selecting station
           DropdownButton<String>(
             value: appState.estacao.isNotEmpty ? appState.estacao : null,
             hint: Text("Estação"),
             onChanged: (String? newValue) {
               if (newValue != null) {
                 appState.selectStation(newValue);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StationDetailPage(
+                      nomeEstacao: newValue,
+                      comboiosEstacao: appState.comboiosEstacao,
+                    ),
+                  ),
+                );
               }
             },
             items: appState.obterEstacoesLinhaSintras
@@ -111,26 +119,9 @@ class GeneratorPage extends StatelessWidget {
               );
             }).toList(),
           ),
-          SizedBox(height: 20),
-          Text(
-            "Próximos comboios:",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: appState.comboiosEstacao.length,
-              itemBuilder: (context, index) {
-                var comboio = appState.comboiosEstacao[index];
-                return ListTile(
-                  title: Text("Comboio ${comboio.id}   Destino: ${comboio.estacaoDestino}"),
-                  subtitle: Text(
-                      "Percentagem de ocupação: \nCarruagem 1: ${comboio.lotacao[0]}% \nCarruagem 2: ${comboio.lotacao[1]}% \nCarruagem 3: ${comboio.lotacao[2]}%"),
-                );
-              },
-            ),
-          ),
         ],
       ),
     );
   }
 }
+
