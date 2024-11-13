@@ -69,7 +69,7 @@ class GeneratorPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Seleciona uma estação: "),
+          Text("Selecionar estação de origem: "),
           DropdownButton<String>(
             value: appState.estacao.isNotEmpty ? appState.estacao : null,
             hint: Text("Estação"),
@@ -96,6 +96,33 @@ class GeneratorPage extends StatelessWidget {
               );
             }).toList(),
           ),
+            Text("Selecionar estação de destino: "),
+            DropdownButton<String>(
+              value: appState.estacao.isNotEmpty ? appState.estacao : null,
+              hint: Text("Estação"),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  appState.selectStation(newValue);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StationDetailPage(
+                        nomeEstacao: newValue,
+                        comboiosEstacao: appState.comboiosEstacao,
+                      ),
+                    ),
+                  );
+                }
+              },
+              items: appState.obterEstacoesLinhaSintras
+                  .map<DropdownMenuItem<String>>((String station) {
+                return DropdownMenuItem<String>(
+                  value: station,
+                  child: Text(station),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );
