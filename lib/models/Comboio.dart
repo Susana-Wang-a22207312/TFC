@@ -1,27 +1,56 @@
+import 'package:namer_app/models/Schedule.dart';
+
 class Comboio {
   int id;
   String linha;
   String estacaoOrigem;
   String estacaoDestino;
+  List<Schedule> temposChegada;
   List<int> lotacao;
 
-  Comboio(this.id,this.linha, this.estacaoOrigem,  this.estacaoDestino, this.lotacao);
+  Comboio(this.id, this.linha, this.estacaoOrigem, this.estacaoDestino,
+      this.temposChegada, this.lotacao);
 
   String estacaoDeOrigem()
   {
-    return estacaoOrigem;
+    return temposChegada.last.toString();
   }
 
   String estacaoDeDestino()
   {
-    return estacaoDestino;
+    return temposChegada.first.toString();
   }
 
+  void mostraTempo(){
+    for (var t in temposChegada) {
+      t.toString();
+    }
+  }
+
+
+   static List<Schedule> obterEstacoesComTempo()
+  {
+    return [
+      Schedule('Lisboa - Rossio', '10:00'),
+      Schedule('Lisboa - Entrecampos', '10:05'),
+      Schedule('Lisboa - Sete Rios', '10:10'),
+      Schedule('Praça de Espanha', '10:15'),
+      Schedule('Campo de Ourique', '10:20'),
+      Schedule('Alfornelos', '10:25'),
+      Schedule('Odivelas', '10:30'),
+      Schedule('Póvoa de Santo Adrião', '10:35'),
+      Schedule('Rio de Mouro', '10:40'),
+      Schedule('Sintra', '10:45'),
+    ];
+  }
+
+
+  
   static List<Comboio> obterComboiosPorEstacao(String estacao) {
     return [
-      Comboio(1, 'Sintra', estacao, 'Sintra',[20, 50, 80]),
-      Comboio(2, 'Sintra',estacao,'Sintra',  [30, 45, 60]),
-      Comboio(3,'Sintra', estacao,'Sintra',  [25, 55, 75]),
+      Comboio(1, 'Sintra', estacao, 'Sintra', obterEstacoesComTempo(),[20, 50, 80]),
+      Comboio(2, 'Sintra',estacao,'Sintra', obterEstacoesComTempo(),[30, 45, 60]),
+      Comboio(3,'Sintra', estacao,'Sintra', obterEstacoesComTempo() ,[25, 55, 75]),
     ];
   }
 
@@ -40,3 +69,4 @@ class Comboio {
     ];
   }
 }
+
