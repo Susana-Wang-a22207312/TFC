@@ -21,10 +21,13 @@ class Comboio {
     return temposChegada.first.toString();
   }
 
-  void mostraTempo(){
+  String mostraTempo(String station) {
     for (var t in temposChegada) {
-      t.toString();
+      if (t.estacao == station) {
+        return t.tempo;
+      }
     }
+    return "Horário não disponível para $station";
   }
 
 

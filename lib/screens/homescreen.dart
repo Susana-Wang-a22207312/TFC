@@ -4,15 +4,20 @@ import '../models/Comboio.dart';
 import '../screens/estacao.dart';
 
 class MyAppState extends ChangeNotifier {
-  String estacao = "";
+  String estacaoOrigem = "";
+  String estacaoDestino = "";
   List<Comboio> comboiosEstacao = [];
 
-  List<String> get obterEstacoesLinhaSintras =>
-      Comboio.obterEstacoesLinhaSintra();
+  List<String> get obterEstacoesLinhaSintras => Comboio.obterEstacoesLinhaSintra();
 
   void selectStation(String station) {
-    estacao = station;
+    estacaoOrigem = station;
     comboiosEstacao = Comboio.obterComboiosPorEstacao(station);
+    notifyListeners();
+  }
+
+  void selectDestination(String station) {
+    estacaoDestino = station;
     notifyListeners();
   }
 }
@@ -47,8 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ListTile(
                   leading: Icon(Icons.home),
                   title: Text('Home'),
-                  onTap: () {
-                  },
+                  onTap: () {},
                 ),
               ],
             ),
@@ -71,21 +75,11 @@ class GeneratorPage extends StatelessWidget {
         children: [
           Text("Selecionar estação de origem: "),
           DropdownButton<String>(
-            value: appState.estacao.isNotEmpty ? appState.estacao : null,
-            hint: Text("Estação"),
+            value: appState.estacaoOrigem.isNotEmpty ? appState.estacaoOrigem : null,
+            hint: Text("Estação de Origem"),
             onChanged: (String? newValue) {
               if (newValue != null) {
                 appState.selectStation(newValue);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StationDetailPage(
-                      nomeEstacao: newValue,
-                      comboiosEstacao: appState.comboiosEstacao,
-                    ),
-                  ),
-                );
               }
             },
             items: appState.obterEstacoesLinhaSintras
@@ -96,36 +90,46 @@ class GeneratorPage extends StatelessWidget {
               );
             }).toList(),
           ),
-            Text("Selecionar estação de destino: "),
-            DropdownButton<String>(
-              value: appState.estacao.isNotEmpty ? appState.estacao : null,
-              hint: Text("Estação"),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  appState.selectStation(newValue);
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StationDetailPage(
-                        nomeEstacao: newValue,
-                        comboiosEstacao: appState.comboiosEstacao,
-                      ),
+          Text("Selecionar estação de destino: "),
+          DropdownButton<String>(
+            value: appState.estacaoDestino.isNotEmpty ? appState.estacaoDestino : null,
+            hint: Text("Estação de Destino"),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                appState.selectDestination(newValue);
+              }
+            },
+            items: appState.obterEstacoesLinhaSintras
+                .map<DropdownMenuItem<String>>((String station) {
+              return DropdownMenuItem<String>(
+                value: station,
+                child: Text(station),
+              );
+            }).toList(),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (appState.estacaoOrigem.isNotEmpty && appState.estacaoDestino.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StationDetailPage(
+                      nomeEstacaoOrigem: appState.estacaoOrigem,
+                      nomeEstacaoDestino: appState.estacaoDestino,
+                      comboiosEstacao: appState.comboiosEstacao,
                     ),
-                  );
-                }
-              },
-              items: appState.obterEstacoesLinhaSintras
-                  .map<DropdownMenuItem<String>>((String station) {
-                return DropdownMenuItem<String>(
-                  value: station,
-                  child: Text(station),
+                  ),
                 );
-              }).toList(),
-            ),
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Selecione ambas as estações de origem e destino.")),
+                );
+              }
+            },
+            child: Text("Ver Comboios"),
+          ),
         ],
       ),
     );
   }
 }
-

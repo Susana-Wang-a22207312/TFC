@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../models/Comboio.dart';
 
 class StationDetailPage extends StatelessWidget {
-  final String nomeEstacao;
+  final String nomeEstacaoOrigem;
+  final String nomeEstacaoDestino;
   final List<Comboio> comboiosEstacao;
 
   const StationDetailPage({
     Key? key,
-    required this.nomeEstacao,
+    required this.nomeEstacaoOrigem,
+    required this.nomeEstacaoDestino,
     required this.comboiosEstacao,
   }) : super(key: key);
 
@@ -19,9 +21,18 @@ class StationDetailPage extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Estação: $nomeEstacao',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            child: Column(
+              children: [
+                Text(
+                  "Origem: $nomeEstacaoOrigem",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Destino: $nomeEstacaoDestino",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -29,10 +40,14 @@ class StationDetailPage extends StatelessWidget {
               itemCount: comboiosEstacao.length,
               itemBuilder: (context, index) {
                 var comboio = comboiosEstacao[index];
+                String tempo = comboio.mostraTempo(nomeEstacaoOrigem);
                 return ListTile(
-                  title: Text("Comboio ${comboio.id} | Destino: ${comboio.estacaoDestino}"),
+                  title: Text("Comboio ${comboio.id} | ${tempo}"),
                   subtitle: Text(
-                    "Percentagem de ocupação: \nCarruagem 1: ${comboio.lotacao[0]}% \nCarruagem 2: ${comboio.lotacao[1]}% \nCarruagem 3: ${comboio.lotacao[2]}%",
+                    "Percentagem de ocupação:\n"
+                        "Carruagem 1: ${comboio.lotacao[0]}%\n"
+                        "Carruagem 2: ${comboio.lotacao[1]}%\n"
+                        "Carruagem 3: ${comboio.lotacao[2]}%",
                   ),
                 );
               },
