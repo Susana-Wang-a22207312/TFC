@@ -42,7 +42,7 @@ class StationDetailPage extends StatelessWidget {
                 var comboio = comboiosEstacao[index];
                 String tempo = comboio.mostraTempo(nomeEstacaoOrigem);
                 return ListTile(
-                  title: Text("Comboio ${comboio.id} | ${tempo}"),
+                  title: Text("Comboio ${comboio.id} | ${comboio.estacaoOrigem} | ${comboio.estacaoDestino} | ${tempo}"),
                   subtitle: Text(
                     "Percentagem de ocupação:\n"
                         "Carruagem 1: ${comboio.lotacao[0]}%\n"
