@@ -42,12 +42,18 @@ class StationDetailPage extends StatelessWidget {
                 var comboio = comboiosEstacao[index];
                 String tempo = comboio.mostraTempo(nomeEstacaoOrigem);
                 return ListTile(
-                  title: Text("Comboio ${comboio.id} | ${comboio.estacaoOrigem} | ${comboio.estacaoDestino} | ${tempo}"),
+                  title: Text(
+                      "Comboio ${comboio.id} | ${comboio.estacaoOrigem} —> ${comboio.estacaoDestino}"),
                   subtitle: Text(
                     "Percentagem de ocupação:\n"
-                        "Carruagem 1: ${comboio.lotacao[0]}%\n"
-                        "Carruagem 2: ${comboio.lotacao[1]}%\n"
-                        "Carruagem 3: ${comboio.lotacao[2]}%",
+                    "Carruagem 1: ${comboio.lotacao[0]}%\n"
+                    "Carruagem 2: ${comboio.lotacao[1]}%\n"
+                    "Carruagem 3: ${comboio.lotacao[2]}%",
+                  ),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                    },
+                    child: Text("Horário"),
                   ),
                 );
               },
