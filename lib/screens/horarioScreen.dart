@@ -3,7 +3,7 @@ import '../models/Schedule.dart';
 
 class horarioScreen extends StatelessWidget {
   final List<Schedule> schedule;
-  final String selectedStation; // Estação de origem escolhida
+  final String selectedStation;
 
   const horarioScreen({
     Key? key,

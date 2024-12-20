@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/Comboio.dart';
-import '../screens/estacao.dart';
+import '../screens/estacaoScreen.dart';
 
 class MyAppState extends ChangeNotifier {
   String estacaoOrigem = "";
