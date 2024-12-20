@@ -13,12 +13,12 @@ class Comboio {
 
   String estacaoDeOrigem()
   {
-    return temposChegada.last.toString();
+    return obterEstacoesLinhaSintra().first.toString();
   }
 
   String estacaoDeDestino()
   {
-    return temposChegada.first.toString();
+    return obterEstacoesLinhaSintra().last.toString();
   }
 
   String mostraTempo(String station) {

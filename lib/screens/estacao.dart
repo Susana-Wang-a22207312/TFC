@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/Comboio.dart';
+import '../screens/horarioScreen.dart';
+
 
 class StationDetailPage extends StatelessWidget {
   final String nomeEstacaoOrigem;
@@ -43,7 +45,7 @@ class StationDetailPage extends StatelessWidget {
                 String tempo = comboio.mostraTempo(nomeEstacaoOrigem);
                 return ListTile(
                   title: Text(
-                      "Comboio ${comboio.id} | ${comboio.estacaoOrigem} —> ${comboio.estacaoDestino}"),
+                      "Comboio ${comboio.id} | ${comboio.estacaoDeOrigem()} —> ${comboio.estacaoDeDestino()}"),
                   subtitle: Text(
                     "Percentagem de ocupação:\n"
                     "Carruagem 1: ${comboio.lotacao[0]}%\n"
@@ -52,6 +54,15 @@ class StationDetailPage extends StatelessWidget {
                   ),
                   trailing: ElevatedButton(
                     onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => horarioScreen(
+                            schedule: comboio.temposChegada,
+                            selectedStation: nomeEstacaoOrigem,
+                          ),
+                        ),
+                      );
                     },
                     child: Text("Horário"),
                   ),
