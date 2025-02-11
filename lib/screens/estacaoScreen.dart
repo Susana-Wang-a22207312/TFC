@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/Comboio.dart';
 import '../screens/horarioScreen.dart';
 
-
 class StationDetailPage extends StatelessWidget {
   final String nomeEstacaoOrigem;
   final String nomeEstacaoDestino;
@@ -43,28 +42,66 @@ class StationDetailPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 var comboio = comboiosEstacao[index];
                 String tempo = comboio.mostraTempo(nomeEstacaoOrigem);
-                return ListTile(
-                  title: Text(
-                      "Comboio ${comboio.id} | ${comboio.estacaoDeOrigem()} —> ${comboio.estacaoDeDestino()}"),
-                  subtitle: Text(
-                    "Percentagem de ocupação:\n"
-                    "Carruagem 1: ${comboio.lotacao[0]}%\n"
-                    "Carruagem 2: ${comboio.lotacao[1]}%\n"
-                    "Carruagem 3: ${comboio.lotacao[2]}%",
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => horarioScreen(
-                            schedule: comboio.temposChegada,
-                            selectedStation: nomeEstacaoOrigem,
+
+                int minOcupacao = comboio.lotacao.reduce((a, b) => a < b ? a : b);
+                int carruagemRecomendada = comboio.lotacao.indexOf(minOcupacao) + 1;
+
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: ListTile(
+                    title: Text(
+                      "Comboio ${comboio.id} | ${comboio.estacaoDeOrigem()} → ${comboio.estacaoDeDestino()}",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        Text(
+                          "Carruagem recomendada: CARRUAGEM $carruagemRecomendada",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo,
                           ),
                         ),
-                      );
-                    },
-                    child: Text("Horário"),
+
+                        Text("Percentagem de ocupação:"),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(
+                            comboio.lotacao.length,
+                                (i) {
+                              int ocupacao = comboio.lotacao[i];
+                              return Text(
+                                "Carruagem ${i + 1}: $ocupacao%",
+                                style: TextStyle(
+                                  color: getColor(ocupacao),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => horarioScreen(
+                              schedule: comboio.temposChegada,
+                              selectedStation: nomeEstacaoOrigem,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text("Horário"),
+                    ),
                   ),
                 );
               },
@@ -73,5 +110,15 @@ class StationDetailPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color getColor(int ocupacao) {
+    if (ocupacao <= 50) {
+      return Colors.green;
+    } else if (ocupacao <= 70) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
   }
 }
