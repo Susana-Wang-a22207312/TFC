@@ -60,16 +60,6 @@ class StationDetailPage extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
-                        Text(
-                          "Carruagem recomendada: CARRUAGEM $carruagemRecomendada",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.indigo,
-                          ),
-                        ),
-
                         Text("Percentagem de ocupação:"),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,10 +67,24 @@ class StationDetailPage extends StatelessWidget {
                             comboio.lotacao.length,
                                 (i) {
                               int ocupacao = comboio.lotacao[i];
-                              return Text(
-                                "Carruagem ${i + 1}: $ocupacao%",
-                                style: TextStyle(
-                                  color: getColor(ocupacao),
+                              bool isRecommended = (i + 1) == carruagemRecomendada;
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(
+                                  children: [
+                                    if (isRecommended)
+                                      Icon(Icons.star, color: Colors.amber, size: 20),
+                                    SizedBox(width: isRecommended ? 5 : 0),
+                                    Text(
+                                      "Carruagem ${i + 1}: $ocupacao%",
+                                      style: TextStyle(
+                                        color: getColor(ocupacao),
+                                        fontSize: isRecommended ? 18 : 14,
+                                        fontWeight: isRecommended ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             },
