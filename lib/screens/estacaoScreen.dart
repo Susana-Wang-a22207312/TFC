@@ -22,21 +22,40 @@ class StationDetailPage extends StatelessWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+            padding: EdgeInsets.zero,
+            child: Container(
+              width: double.infinity,
+              height: 80,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFFdfe6e0),
+              ),
+            child: Row(
               children: [
                 Text(
                   "Origem: $nomeEstacaoOrigem",
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: RailDivider(),
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
                 Text(
                   "Destino: $nomeEstacaoDestino",
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
+            ),
           ),
+          const SizedBox(height: 30),
           Expanded(
             child: ListView.separated(
               itemCount: comboiosEstacao.length,
@@ -200,7 +219,6 @@ class TrainWidget extends StatelessWidget {
                               ],
                             ),
                           ),
-                          // carriage number
                           Positioned(
                             top: -20,
                             left: 0,
@@ -230,7 +248,6 @@ class TrainWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 20),
-              // Tail with schedule
               SizedBox(
                 width: 80,
                 height: 100,
@@ -271,7 +288,6 @@ class TrainWidget extends StatelessWidget {
   }
 }
 
-// Clippers
 class BulletTrainHeadLeftClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -306,7 +322,6 @@ class BulletTrainHeadRightClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> old) => false;
 }
 
-// Rail Divider
 class RailDivider extends StatelessWidget {
   const RailDivider({Key? key}) : super(key: key);
   @override
