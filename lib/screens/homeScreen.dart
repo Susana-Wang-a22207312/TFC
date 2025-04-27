@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/Comboio.dart';
@@ -30,41 +31,56 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // <- Agora aqui!
+
+  Future<void> addData() async {
+    try {
+      await _firestore.collection('users').add({
+        'name': 'John Doe',
+        'email': 'john.doe@example.com',
+        'age': 30,
+      });
+      print("Document Added!");
+    } catch (e) {
+      print('Failed to add document: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = GeneratorPage(onAddData: addData); // Passar função para GeneratorPage
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          appBar: AppBar(title: Text('Comboios Suzy')),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.home),
-                  title: Text('Home'),
-                  onTap: () {},
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(title: Text('Comboios')),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {},
             ),
-          ),
-          body: page,
-        );
-      },
+          ],
+        ),
+      ),
+      body: page,
     );
   }
 }
 
 class GeneratorPage extends StatelessWidget {
+  final VoidCallback onAddData;
+
+  GeneratorPage({required this.onAddData}); // Recebe a função do botão!
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -107,6 +123,7 @@ class GeneratorPage extends StatelessWidget {
               );
             }).toList(),
           ),
+          SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               if (appState.estacaoOrigem.isNotEmpty && appState.estacaoDestino.isNotEmpty) {
@@ -127,6 +144,11 @@ class GeneratorPage extends StatelessWidget {
               }
             },
             child: Text("Ver Comboios"),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: onAddData,
+            child: Text("Adicionar utilizador ao Firebase"), // Botão que usa a função passada
           ),
         ],
       ),

@@ -1,0 +1,1 @@
+{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"dart":{"lib/firebase_options.dart":{"projectId":"teste-545a1","configurations":{"web":"1:576195742984:web:09c487d39542d17fb6b0bd"}}}}}}
