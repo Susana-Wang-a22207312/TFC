@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:namer_app/models/Schedule.dart';
 
 class Comboio {
@@ -71,5 +72,56 @@ class Comboio {
       'Sintra',
     ];
   }
+
+  List<int> get ocupacoes => lotacao;
+
+  factory Comboio.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    //print("raw Comboio data (docID=${doc.id}): $data");
+
+    final int id = int.tryParse(doc.id) ?? (data['id'] as int? ?? 0);
+
+    final String linha          = data['linha']          as String? ?? '';
+    final String estacaoOrigem  = data['estacaoOrigem']  as String? ?? '';
+    final String estacaoDestino = data['estacaoDestino'] as String? ?? '';
+
+    List<int> ocupacoes = [];
+    if (data['Ocupacoes'] is List) {
+      ocupacoes = List<int>.from((data['Ocupacoes'] as List).map((e) {
+        if (e is num) return e.toInt();
+        if (e is String) return int.tryParse(e) ?? 0;
+        return 0;
+      }));
+    } else if (data['lotacao'] is num) {
+      ocupacoes = [(data['lotacao'] as num).toInt()];
+    }
+
+    const possibleKeys = ['linha de sintra', 'linha sintra'];
+    Map<String, dynamic>? rawMap;
+    for (final key in possibleKeys) {
+      final candidate = data[key];
+      if (candidate is Map<String, dynamic>) {
+        rawMap = candidate;
+        break;
+      }
+    }
+    rawMap ??= <String, dynamic>{};
+
+    final List<Schedule> temposChegada = rawMap.entries
+        .map((e) => Schedule(e.key, e.value as String))
+        .toList();
+
+    return Comboio(
+      id,
+      linha,
+      estacaoOrigem,
+      estacaoDestino,
+      temposChegada,
+      ocupacoes,
+    );
+  }
+
+
+
 }
 

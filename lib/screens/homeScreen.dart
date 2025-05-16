@@ -7,13 +7,13 @@ import '../screens/estacaoScreen.dart';
 class MyAppState extends ChangeNotifier {
   String estacaoOrigem = "";
   String estacaoDestino = "";
-  List<Comboio> comboiosEstacao = [];
+  //List<Comboio> comboiosEstacao = [];
 
   List<String> get obterEstacoesLinhaSintras => Comboio.obterEstacoesLinhaSintra();
 
   void selectStation(String station) {
     estacaoOrigem = station;
-    comboiosEstacao = Comboio.obterComboiosPorEstacao(station);
+    //comboiosEstacao = Comboio.obterComboiosPorEstacao(station);
     notifyListeners();
   }
 
@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // <- Agora aqui!
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> addData() async {
     try {
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage(onAddData: addData); // Passar função para GeneratorPage
+        page = GeneratorPage(onAddData: addData);
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
 class GeneratorPage extends StatelessWidget {
   final VoidCallback onAddData;
 
-  GeneratorPage({required this.onAddData}); // Recebe a função do botão!
+  GeneratorPage({required this.onAddData});
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +133,7 @@ class GeneratorPage extends StatelessWidget {
                     builder: (context) => StationDetailPage(
                       nomeEstacaoOrigem: appState.estacaoOrigem,
                       nomeEstacaoDestino: appState.estacaoDestino,
-                      comboiosEstacao: appState.comboiosEstacao,
+
                     ),
                   ),
                 );
@@ -148,7 +148,7 @@ class GeneratorPage extends StatelessWidget {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: onAddData,
-            child: Text("Adicionar utilizador ao Firebase"), // Botão que usa a função passada
+            child: Text("Adicionar utilizador ao Firebase"),
           ),
         ],
       ),
