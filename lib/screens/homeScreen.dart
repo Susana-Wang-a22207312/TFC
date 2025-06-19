@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/Comboio.dart';
 import '../screens/estacaoScreen.dart';
+import '../services/auth_service.dart';
+import 'loginScreen.dart';
 
 class MyAppState extends ChangeNotifier {
   String estacaoOrigem = "";
   String estacaoDestino = "";
-  //List<Comboio> comboiosEstacao = [];
 
   List<String> get obterEstacoesLinhaSintras => Comboio.obterEstacoesLinhaSintra();
 
   void selectStation(String station) {
     estacaoOrigem = station;
-    //comboiosEstacao = Comboio.obterComboiosPorEstacao(station);
     notifyListeners();
   }
 
@@ -30,20 +30,27 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+  final _authService = AuthService();
+  bool _isLoggedIn = false;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  @override
+  void initState() {
+    super.initState();
+    _checkUser();
+  }
 
-  Future<void> addData() async {
-    try {
-      await _firestore.collection('users').add({
-        'name': 'John Doe',
-        'email': 'john.doe@example.com',
-        'age': 30,
-      });
-      print("Document Added!");
-    } catch (e) {
-      print('Failed to add document: $e');
-    }
+  Future<void> _checkUser() async {
+    final user = await _authService.getCurrentUser();
+    setState(() {
+      _isLoggedIn = user != null;
+    });
+  }
+
+  Future<void> _logout() async {
+    await _authService.logout();
+    setState(() {
+      _isLoggedIn = false;
+    });
   }
 
   @override
@@ -51,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage(onAddData: addData);
+        page = GeneratorPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -63,10 +70,47 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            ),
             ListTile(
               leading: Icon(Icons.home),
               title: Text('Home'),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  selectedIndex = 0;
+                });
+              },
+            ),
+            _isLoggedIn
+                ? ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () async {
+                await _logout();
+                Navigator.pop(context);
+              },
+            )
+                : ListTile(
+              leading: Icon(Icons.login),
+              title: Text('Login'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                      onSignedIn: () {
+                        setState(() {
+                          _isLoggedIn = true;
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -77,10 +121,6 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class GeneratorPage extends StatelessWidget {
-  final VoidCallback onAddData;
-
-  GeneratorPage({required this.onAddData});
-
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -126,29 +166,29 @@ class GeneratorPage extends StatelessWidget {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              if (appState.estacaoOrigem.isNotEmpty && appState.estacaoDestino.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StationDetailPage(
-                      nomeEstacaoOrigem: appState.estacaoOrigem,
-                      nomeEstacaoDestino: appState.estacaoDestino,
-
-                    ),
-                  ),
-                );
-              } else {
+              if (appState.estacaoOrigem.isEmpty || appState.estacaoDestino.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Selecione ambas as estações de origem e destino.")),
                 );
+                return;
               }
+              if (appState.estacaoOrigem == appState.estacaoDestino) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Estação de origem e destino não podem ser iguais.")),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StationDetailPage(
+                    nomeEstacaoOrigem: appState.estacaoOrigem,
+                    nomeEstacaoDestino: appState.estacaoDestino,
+                  ),
+                ),
+              );
             },
             child: Text("Ver Comboios"),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: onAddData,
-            child: Text("Adicionar utilizador ao Firebase"),
           ),
         ],
       ),
