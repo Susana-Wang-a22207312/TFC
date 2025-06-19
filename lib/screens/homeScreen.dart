@@ -1,16 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/Comboio.dart';
-import '../screens/estacaoScreen.dart';
+import '../screens/CarriageDetailScreen.dart';
 import '../services/auth_service.dart';
+import 'historyScreen.dart';
 import 'loginScreen.dart';
+import 'package:awesome_datetime_picker/awesome_datetime_picker.dart';
+
 
 class MyAppState extends ChangeNotifier {
   String estacaoOrigem = "";
   String estacaoDestino = "";
 
-  List<String> get obterEstacoesLinhaSintras => Comboio.obterEstacoesLinhaSintra();
+  List<String> get obterEstacoesLinhaSintras =>
+      Comboio.obterEstacoesLinhaSintra();
 
   void selectStation(String station) {
     estacaoOrigem = station;
@@ -72,7 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
-              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+              child: Text('Menu',
+                  style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
             ListTile(
               leading: Icon(Icons.home),
@@ -84,34 +90,45 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
             ),
-            _isLoggedIn
-                ? ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () async {
-                await _logout();
-                Navigator.pop(context);
-              },
-            )
-                : ListTile(
-              leading: Icon(Icons.login),
-              title: Text('Login'),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('Histórico'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(
-                      onSignedIn: () {
-                        setState(() {
-                          _isLoggedIn = true;
-                        });
-                      },
-                    ),
-                  ),
+                  MaterialPageRoute(builder: (_) => HistoryScreen()),
                 );
               },
             ),
+            _isLoggedIn
+                ? ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text('Logout'),
+                    onTap: () async {
+                      await _logout();
+                      Navigator.pop(context);
+                    },
+                  )
+                : ListTile(
+                    leading: Icon(Icons.login),
+                    title: Text('Login'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(
+                            onSignedIn: () {
+                              setState(() {
+                                _isLoggedIn = true;
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
       ),
@@ -120,50 +137,171 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+
+class GeneratorPage extends StatefulWidget {
+  @override
+  _GeneratorPageState createState() => _GeneratorPageState();
+}
+
+class _GeneratorPageState extends State<GeneratorPage> {
+  DateTime? startTime;
+  DateTime? endTime;
+  final DateFormat hourFormat = DateFormat('HH:mm');
+
+  Future<void> pickStartTime() async {
+    AwesomeTime? pickedTime = AwesomeTime(hour: TimeOfDay.now().hour, minute: TimeOfDay.now().minute);
+
+    final result = await showDialog<AwesomeTime>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          content: SizedBox(
+            width: 360,
+            height: 200,
+            child: AwesomeTimePicker(
+              initialTime: pickedTime!,
+              timeFormat: AwesomeTimeFormat.Hm,
+              onChanged: (time) {
+                pickedTime = time;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel
+              child: Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, pickedTime), // Confirm with pickedTime
+              child: Text("Confirmar"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        startTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          result.hour,
+          result.minute,
+        );
+      });
+    }
+  }
+
+
+
+
+  Future<void> pickEndTime() async {
+    AwesomeTime? pickedTime = AwesomeTime(
+      hour: TimeOfDay.now().hour,
+      minute: TimeOfDay.now().minute,
+    );
+
+    final result = await showDialog<AwesomeTime>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          content: SizedBox(
+            width: 360,
+            height: 200,
+            child: AwesomeTimePicker(
+              initialTime: pickedTime!,
+              timeFormat: AwesomeTimeFormat.Hm,
+              onChanged: (time) {
+                pickedTime = time;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel
+              child: Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, pickedTime), // Confirm with value
+              child: Text("Confirmar"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        endTime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          result.hour,
+          result.minute,
+        );
+      });
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    final appState = context.watch<MyAppState>();
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Selecionar estação de origem: "),
+          Text("Selecionar estação de origem:"),
           DropdownButton<String>(
             value: appState.estacaoOrigem.isNotEmpty ? appState.estacaoOrigem : null,
             hint: Text("Estação de Origem"),
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                appState.selectStation(newValue);
-              }
+            onChanged: (newValue) {
+              if (newValue != null) appState.selectStation(newValue);
             },
-            items: appState.obterEstacoesLinhaSintras
-                .map<DropdownMenuItem<String>>((String station) {
-              return DropdownMenuItem<String>(
-                value: station,
-                child: Text(station),
-              );
+            items: appState.obterEstacoesLinhaSintras.map((station) {
+              return DropdownMenuItem(value: station, child: Text(station));
             }).toList(),
           ),
-          Text("Selecionar estação de destino: "),
+          SizedBox(height: 12),
+          Text("Selecionar estação de destino:"),
           DropdownButton<String>(
             value: appState.estacaoDestino.isNotEmpty ? appState.estacaoDestino : null,
             hint: Text("Estação de Destino"),
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                appState.selectDestination(newValue);
-              }
+            onChanged: (newValue) {
+              if (newValue != null) appState.selectDestination(newValue);
             },
-            items: appState.obterEstacoesLinhaSintras
-                .map<DropdownMenuItem<String>>((String station) {
-              return DropdownMenuItem<String>(
-                value: station,
-                child: Text(station),
-              );
-            }).toList(),
+              items: appState.obterEstacoesLinhaSintras
+                  .where((station) => station != appState.estacaoOrigem)
+                  .map((station) => DropdownMenuItem(value: station, child: Text(station)))
+                  .toList()
+
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: pickStartTime,
+            child: Text(
+              startTime == null
+                  ? "Selecionar hora início"
+                  : "Início: ${hourFormat.format(startTime!)}",
+            ),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: pickEndTime,
+            child: Text(
+              endTime == null
+                  ? "Selecionar hora fim"
+                  : "Fim: ${hourFormat.format(endTime!)}",
+            ),
+          ),
+          SizedBox(height: 32),
           ElevatedButton(
             onPressed: () {
               if (appState.estacaoOrigem.isEmpty || appState.estacaoDestino.isEmpty) {
@@ -178,12 +316,31 @@ class GeneratorPage extends StatelessWidget {
                 );
                 return;
               }
+              if (startTime == null || endTime == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Selecione intervalo de horas.")),
+                );
+                return;
+              }
+
+              final sMin = startTime!.hour * 60 + startTime!.minute;
+              final eMin = endTime!.hour * 60 + endTime!.minute;
+
+              if (sMin >= eMin) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Hora início deve ser antes da hora fim.")),
+                );
+                return;
+              }
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StationDetailPage(
+                  builder: (_) => StationDetailPage(
                     nomeEstacaoOrigem: appState.estacaoOrigem,
                     nomeEstacaoDestino: appState.estacaoDestino,
+                    startTime: TimeOfDay.fromDateTime(startTime!),
+                    endTime: TimeOfDay.fromDateTime(endTime!),
                   ),
                 ),
               );
@@ -195,3 +352,4 @@ class GeneratorPage extends StatelessWidget {
     );
   }
 }
+

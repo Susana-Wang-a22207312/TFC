@@ -10,11 +10,16 @@ import '../screens/horarioScreen.dart';
 class StationDetailPage extends StatefulWidget {
   final String nomeEstacaoOrigem;
   final String nomeEstacaoDestino;
+  final TimeOfDay? startTime;
+  final TimeOfDay? endTime;
+
 
   const StationDetailPage({
     Key? key,
     required this.nomeEstacaoOrigem,
     required this.nomeEstacaoDestino,
+    this.startTime,
+    this.endTime,
   }) : super(key: key);
 
   @override
