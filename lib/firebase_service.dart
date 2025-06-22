@@ -5,21 +5,14 @@ class FirebaseService {
   final _db = FirebaseFirestore.instance;
 
   Future<List<Comboio>> fetchComboiosForStation(String station) async {
-    final snap = await _db.collection('Comboio').get();
+    final snap = await _db
+        .collection('Comboio')
+        .where('linha de sintra', arrayContains: station) // requires 'estacoes' array in Firestore docs
+        .get();
+
     print("encontrei ${snap.docs.length} documentos");
 
-    final all = snap.docs.map((d) {
-      final c = Comboio.fromFirestore(d);
-      //print("  • Comboio ${c.id} stops at: ${c.temposChegada.map((s) => s.estacao).toList()}");
-      return c;
-    }).toList();
-
-    // Correct filter over List<Schedule>:
-    final filtered = all
-        .where((c) => c.temposChegada.any((s) => s.estacao == station))
-        .toList();
-
-    //print("filtro para estacao '$station': ${filtered.length} matches");
-    return filtered;
+    return snap.docs.map((d) => Comboio.fromFirestore(d)).toList();
   }
+
 }

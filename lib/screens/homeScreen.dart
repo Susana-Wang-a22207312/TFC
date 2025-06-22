@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/Comboio.dart';
 import '../screens/CarriageDetailScreen.dart';
 import '../services/auth_service.dart';
+import 'detailScreen.dart';
 import 'historyScreen.dart';
 import 'loginScreen.dart';
 import 'package:awesome_datetime_picker/awesome_datetime_picker.dart';
@@ -254,6 +256,15 @@ class _GeneratorPageState extends State<GeneratorPage> {
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
 
+    final comboio = Comboio(
+      123, // id as int
+      'Linha de Sintra',
+      appState.estacaoOrigem,
+      appState.estacaoDestino,
+      Comboio.obterEstacoesComTempo(), // dummy schedule list
+      [50, 60, 70], // dummy lotação
+    );
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -303,7 +314,9 @@ class _GeneratorPageState extends State<GeneratorPage> {
           ),
           SizedBox(height: 32),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              final user = FirebaseAuth.instance.currentUser;
+
               if (appState.estacaoOrigem.isEmpty || appState.estacaoDestino.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Selecione ambas as estações de origem e destino.")),
@@ -333,15 +346,25 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 return;
               }
 
+              // Save history if user logged in
+              if (user != null) {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.uid)
+                    .collection('history')
+                    .add({
+                  'origem': appState.estacaoOrigem,
+                  'destino': appState.estacaoDestino,
+                  'startTime': startTime!.toIso8601String(),
+                  'endTime': endTime!.toIso8601String(),
+                  'timestamp': FieldValue.serverTimestamp(),
+                });
+              }
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => StationDetailPage(
-                    nomeEstacaoOrigem: appState.estacaoOrigem,
-                    nomeEstacaoDestino: appState.estacaoDestino,
-                    startTime: TimeOfDay.fromDateTime(startTime!),
-                    endTime: TimeOfDay.fromDateTime(endTime!),
-                  ),
+                  builder: (_) => DetailScreen(comboio: comboio),
                 ),
               );
             },

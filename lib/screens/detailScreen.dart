@@ -37,7 +37,7 @@ class DetailScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => StationDetailPage(nomeEstacaoOrigem: '', nomeEstacaoDestino: '',),
+                      builder: (_) => CarriageDetailPage(nomeEstacaoOrigem: '', nomeEstacaoDestino: '',),
                     ),
                   );
                 },

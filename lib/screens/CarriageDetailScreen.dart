@@ -7,14 +7,14 @@ import '../models/Schedule.dart';
 import '../screens/horarioScreen.dart';
 
 
-class StationDetailPage extends StatefulWidget {
+class CarriageDetailPage extends StatefulWidget {
   final String nomeEstacaoOrigem;
   final String nomeEstacaoDestino;
   final TimeOfDay? startTime;
   final TimeOfDay? endTime;
 
 
-  const StationDetailPage({
+  const CarriageDetailPage({
     Key? key,
     required this.nomeEstacaoOrigem,
     required this.nomeEstacaoDestino,
@@ -23,10 +23,10 @@ class StationDetailPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StationDetailPage> createState() => _StationDetailPageState();
+  State<CarriageDetailPage> createState() => _CarriageDetailPageState();
 }
 
-class _StationDetailPageState extends State<StationDetailPage> {
+class _CarriageDetailPageState extends State<CarriageDetailPage> {
   late Future<List<Comboio>> _futureComboios;
 
   @override
