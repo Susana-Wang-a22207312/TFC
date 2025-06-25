@@ -72,14 +72,18 @@ class _HomeScaffoldState extends State<HomeScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Aplicação de Recomendação de Carruagens')),
+      appBar: AppBar(
+          title: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text('Aplicação de Recomendação de Carruagens'))),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: Color(0xff125425)),
-              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+              child: Text('Menu',
+                  style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
             ListTile(
               leading: Icon(Icons.home),
@@ -94,37 +98,38 @@ class _HomeScaffoldState extends State<HomeScaffold> {
               title: Text('Histórico'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => HistoryScreen()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => HistoryScreen()));
               },
             ),
             _isLoggedIn
                 ? ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () async {
-                await _logout();
-                Navigator.pop(context);
-              },
-            )
+                    leading: Icon(Icons.logout),
+                    title: Text('Logout'),
+                    onTap: () async {
+                      await _logout();
+                      Navigator.pop(context);
+                    },
+                  )
                 : ListTile(
-              leading: Icon(Icons.login),
-              title: Text('Login'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(
-                      onSignedIn: () {
-                        setState(() {
-                          _isLoggedIn = true;
-                        });
-                      },
-                    ),
+                    leading: Icon(Icons.login),
+                    title: Text('Login'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(
+                            onSignedIn: () {
+                              setState(() {
+                                _isLoggedIn = true;
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ],
         ),
       ),
@@ -132,7 +137,6 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     );
   }
 }
-
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -160,60 +164,78 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onConfirm() async {
     final appState = context.read<MyAppState>();
+    final origem = appState.estacaoOrigem;
+    final destino = appState.estacaoDestino;
+    final partidaPicked = appState.startTime;
+    final chegadaPicked = appState.endTime;
 
-    if (appState.estacaoOrigem.isEmpty || appState.estacaoDestino.isEmpty) {
+    // 1) Validate stations
+    if (origem.isEmpty || destino.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione ambas as estações de origem e destino')),
+        const SnackBar(
+            content: Text('Selecione ambas as estações de origem e destino')),
       );
       return;
     }
-    if (appState.estacaoOrigem == appState.estacaoDestino) {
+    if (origem == destino) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Estação de origem e destino não podem ser iguais')),
-      );
-      return;
-    }
-    if (appState.startTime == null || appState.endTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione as horas')),
-      );
-      return;
-    }
-
-    final sMin = appState.startTime!.hour * 60 + appState.startTime!.minute;
-    final eMin = appState.endTime!.hour * 60 + appState.endTime!.minute;
-
-    if (sMin >= eMin) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Hora de partida deve ser antes da hora de chegada')),
+        const SnackBar(
+            content: Text('Estação de origem e destino não podem ser iguais')),
       );
       return;
     }
 
-    final comboios = await firebaseService.fetchComboiosWithStations(appState.estacaoOrigem, appState.estacaoDestino);
-
-    if (comboios.isEmpty) {
+    // 2) Validate at least one time
+    if (partidaPicked == null && chegadaPicked == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nenhum comboio encontrado para esta rota')),
+        const SnackBar(
+            content:
+                Text('Selecione pelo menos uma hora (partida ou chegada)')),
+      );
+      return;
+    }
+    // 3) If both times picked, ensure partida < chegada
+    if (partidaPicked != null && chegadaPicked != null) {
+      final sMin = partidaPicked.hour * 60 + partidaPicked.minute;
+      final eMin = chegadaPicked.hour * 60 + chegadaPicked.minute;
+      if (sMin >= eMin) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Hora de partida deve ser antes da hora de chegada')),
+        );
+        return;
+      }
+    }
+
+    // 4) Fetch station-filtered trains
+    final stationFiltered =
+        await firebaseService.fetchComboiosWithStations(origem, destino);
+    if (stationFiltered.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Nenhum comboio encontrado para esta rota')),
       );
       return;
     }
 
-    final filteredComboios = comboios.where((comboio) {
-      return comboio.temposChegada.any((schedule) {
-        final min = schedule.hour * 60 + schedule.minute;
-        return min >= sMin && min <= eMin;
-      });
-    }).toList();
-
-    if (filteredComboios.isEmpty) {
+    // 5) Filter by time windows
+    final filtered = firebaseService.filterComboiosByTime(
+      stationFiltered,
+      partidaPicked,
+      chegadaPicked,
+      origem,
+      destino,
+    );
+    if (filtered.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nenhum comboio encontrado no intervalo selecionado')),
+        const SnackBar(
+            content: Text('Nenhum comboio no intervalo selecionado')),
       );
       return;
     }
 
-
+    // 6) Save to history if user logged in
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await FirebaseFirestore.instance
@@ -221,19 +243,25 @@ class _HomeScreenState extends State<HomeScreen> {
           .doc(user.uid)
           .collection('history')
           .add({
-        'origem': appState.estacaoOrigem,
-        'destino': appState.estacaoDestino,
-        'startTime': appState.startTime!.toIso8601String(),
-        'endTime': appState.endTime!.toIso8601String(),
+        'origem': origem,
+        'destino': destino,
+        'startTime': partidaPicked?.toIso8601String(),
+        'endTime': chegadaPicked?.toIso8601String(),
         'timestamp': FieldValue.serverTimestamp(),
       });
     }
 
+    // 7) Navigate to details
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => DetailScreen(comboios: filteredComboios),
-      ),
+          builder: (_) => DetailScreen(
+                comboios: filtered,
+                partidaPicked: partidaPicked,
+                chegadaPicked: chegadaPicked,
+                selectedOrigem: origem,
+                selectedDestino: destino,
+              )),
     );
   }
 
@@ -267,11 +295,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-
               onPressed: _onConfirm,
               style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Color(0xff125425),
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),),
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xff125425),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
               child: const Text('Ver Comboios'),
             ),
           ],

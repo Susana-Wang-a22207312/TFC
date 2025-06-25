@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
       create: (context) => MyAppState(),
       child: MaterialApp(
         title: 'Comboios',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
 
