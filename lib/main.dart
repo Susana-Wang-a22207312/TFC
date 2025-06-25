@@ -27,12 +27,13 @@ class MyApp extends StatelessWidget {
       create: (context) => MyAppState(),
       child: MaterialApp(
         title: 'Comboios',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
 
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0xADDFE0)),
         ),
-        home: MyHomePage(),
+        home: HomeScaffold(),
       ),
     );
   }

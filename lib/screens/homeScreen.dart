@@ -1,26 +1,26 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/Comboio.dart';
-import '../screens/CarriageDetailScreen.dart';
+import '../decorative_widgets/StationSelector.dart';
+import '../decorative_widgets/TimePickers.dart';
+import '../firebase_service.dart';
 import '../services/auth_service.dart';
 import 'detailScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/Comboio.dart';
 import 'historyScreen.dart';
 import 'loginScreen.dart';
-import 'package:awesome_datetime_picker/awesome_datetime_picker.dart';
-
 
 class MyAppState extends ChangeNotifier {
   String estacaoOrigem = "";
   String estacaoDestino = "";
+  DateTime? startTime;
+  DateTime? endTime;
 
-  List<String> get obterEstacoesLinhaSintras =>
-      Comboio.obterEstacoesLinhaSintra();
-
-  void selectStation(String station) {
+  void selectOrigin(String station) {
     estacaoOrigem = station;
+    if (estacaoDestino == station) estacaoDestino = "";
     notifyListeners();
   }
 
@@ -28,15 +28,24 @@ class MyAppState extends ChangeNotifier {
     estacaoDestino = station;
     notifyListeners();
   }
+
+  void selectStartTime(DateTime time) {
+    startTime = time;
+    notifyListeners();
+  }
+
+  void selectEndTime(DateTime time) {
+    endTime = time;
+    notifyListeners();
+  }
 }
 
-class MyHomePage extends StatefulWidget {
+class HomeScaffold extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeScaffoldState createState() => _HomeScaffoldState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+class _HomeScaffoldState extends State<HomeScaffold> {
   final _authService = AuthService();
   bool _isLoggedIn = false;
 
@@ -62,23 +71,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = GeneratorPage();
-        break;
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-
     return Scaffold(
-      appBar: AppBar(title: Text('Comboios')),
+      appBar: AppBar(
+          title: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text('Aplicação de Recomendação de Carruagens'))),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
+              decoration: BoxDecoration(color: Color(0xff125425)),
               child: Text('Menu',
                   style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
@@ -87,9 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Home'),
               onTap: () {
                 Navigator.pop(context);
-                setState(() {
-                  selectedIndex = 0;
-                });
+                // Optional: If you want to navigate to HomeScreen or refresh it
               },
             ),
             ListTile(
@@ -97,10 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('Histórico'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => HistoryScreen()),
-                );
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => HistoryScreen()));
               },
             ),
             _isLoggedIn
@@ -134,245 +133,179 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: page,
+      body: HomeScreen(),
     );
   }
 }
 
-
-class GeneratorPage extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _GeneratorPageState createState() => _GeneratorPageState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _GeneratorPageState extends State<GeneratorPage> {
-  DateTime? startTime;
-  DateTime? endTime;
-  final DateFormat hourFormat = DateFormat('HH:mm');
+class _HomeScreenState extends State<HomeScreen> {
+  List<String> stations = [];
+  bool isLoadingStations = true;
+  final FirebaseService firebaseService = FirebaseService();
 
-  Future<void> pickStartTime() async {
-    AwesomeTime? pickedTime = AwesomeTime(hour: TimeOfDay.now().hour, minute: TimeOfDay.now().minute);
-
-    final result = await showDialog<AwesomeTime>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          content: SizedBox(
-            width: 360,
-            height: 200,
-            child: AwesomeTimePicker(
-              initialTime: pickedTime!,
-              timeFormat: AwesomeTimeFormat.Hm,
-              onChanged: (time) {
-                pickedTime = time;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context), // Cancel
-              child: Text("Cancelar"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, pickedTime), // Confirm with pickedTime
-              child: Text("Confirmar"),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null) {
-      setState(() {
-        startTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          result.hour,
-          result.minute,
-        );
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadStations();
   }
 
-
-
-
-  Future<void> pickEndTime() async {
-    AwesomeTime? pickedTime = AwesomeTime(
-      hour: TimeOfDay.now().hour,
-      minute: TimeOfDay.now().minute,
-    );
-
-    final result = await showDialog<AwesomeTime>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          content: SizedBox(
-            width: 360,
-            height: 200,
-            child: AwesomeTimePicker(
-              initialTime: pickedTime!,
-              timeFormat: AwesomeTimeFormat.Hm,
-              onChanged: (time) {
-                pickedTime = time;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context), // Cancel
-              child: Text("Cancelar"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, pickedTime), // Confirm with value
-              child: Text("Confirmar"),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null) {
-      setState(() {
-        endTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          result.hour,
-          result.minute,
-        );
-      });
-    }
+  Future<void> _loadStations() async {
+    final fetchedStations = await firebaseService.fetchAllStations();
+    setState(() {
+      stations = fetchedStations;
+      isLoadingStations = false;
+    });
   }
 
+  void _onConfirm() async {
+    final appState = context.read<MyAppState>();
+    final origem = appState.estacaoOrigem;
+    final destino = appState.estacaoDestino;
+    final partidaPicked = appState.startTime;
+    final chegadaPicked = appState.endTime;
 
+    // 1) Validate stations
+    if (origem.isEmpty || destino.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Selecione ambas as estações de origem e destino')),
+      );
+      return;
+    }
+    if (origem == destino) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Estação de origem e destino não podem ser iguais')),
+      );
+      return;
+    }
+
+    // 2) Validate at least one time
+    if (partidaPicked == null && chegadaPicked == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Selecione pelo menos uma hora (partida ou chegada)')),
+      );
+      return;
+    }
+    // 3) If both times picked, ensure partida < chegada
+    if (partidaPicked != null && chegadaPicked != null) {
+      final sMin = partidaPicked.hour * 60 + partidaPicked.minute;
+      final eMin = chegadaPicked.hour * 60 + chegadaPicked.minute;
+      if (sMin >= eMin) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Hora de partida deve ser antes da hora de chegada')),
+        );
+        return;
+      }
+    }
+
+    // 4) Fetch station-filtered trains
+    final stationFiltered =
+        await firebaseService.fetchComboiosWithStations(origem, destino);
+    if (stationFiltered.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Nenhum comboio encontrado para esta rota')),
+      );
+      return;
+    }
+
+    // 5) Filter by time windows
+    final filtered = firebaseService.filterComboiosByTime(
+      stationFiltered,
+      partidaPicked,
+      chegadaPicked,
+      origem,
+      destino,
+    );
+    if (filtered.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Nenhum comboio no intervalo selecionado')),
+      );
+      return;
+    }
+
+    // 6) Save to history if user logged in
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('history')
+          .add({
+        'origem': origem,
+        'destino': destino,
+        'startTime': partidaPicked?.toIso8601String(),
+        'endTime': chegadaPicked?.toIso8601String(),
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    }
+
+    // 7) Navigate to details
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => DetailScreen(
+                comboios: filtered,
+                partidaPicked: partidaPicked,
+                chegadaPicked: chegadaPicked,
+                selectedOrigem: origem,
+                selectedDestino: destino,
+              )),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
 
-    final comboio = Comboio(
-      123, // id as int
-      'Linha de Sintra',
-      appState.estacaoOrigem,
-      appState.estacaoDestino,
-      Comboio.obterEstacoesComTempo(), // dummy schedule list
-      [50, 60, 70], // dummy lotação
-    );
+    if (isLoadingStations) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Selecionar estação de origem:"),
-          DropdownButton<String>(
-            value: appState.estacaoOrigem.isNotEmpty ? appState.estacaoOrigem : null,
-            hint: Text("Estação de Origem"),
-            onChanged: (newValue) {
-              if (newValue != null) appState.selectStation(newValue);
-            },
-            items: appState.obterEstacoesLinhaSintras.map((station) {
-              return DropdownMenuItem(value: station, child: Text(station));
-            }).toList(),
-          ),
-          SizedBox(height: 12),
-          Text("Selecionar estação de destino:"),
-          DropdownButton<String>(
-            value: appState.estacaoDestino.isNotEmpty ? appState.estacaoDestino : null,
-            hint: Text("Estação de Destino"),
-            onChanged: (newValue) {
-              if (newValue != null) appState.selectDestination(newValue);
-            },
-              items: appState.obterEstacoesLinhaSintras
-                  .where((station) => station != appState.estacaoOrigem)
-                  .map((station) => DropdownMenuItem(value: station, child: Text(station)))
-                  .toList()
-
-          ),
-          SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: pickStartTime,
-            child: Text(
-              startTime == null
-                  ? "Selecionar hora início"
-                  : "Início: ${hourFormat.format(startTime!)}",
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            StationSelector(
+              selectedOrigin: appState.estacaoOrigem,
+              selectedDestination: appState.estacaoDestino,
+              onOriginChanged: appState.selectOrigin,
+              onDestinationChanged: appState.selectDestination,
+              stations: stations,
             ),
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: pickEndTime,
-            child: Text(
-              endTime == null
-                  ? "Selecionar hora fim"
-                  : "Fim: ${hourFormat.format(endTime!)}",
+            const SizedBox(height: 24),
+            TimePickers(
+              startTime: appState.startTime,
+              endTime: appState.endTime,
+              onStartTimeChanged: appState.selectStartTime,
+              onEndTimeChanged: appState.selectEndTime,
             ),
-          ),
-          SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-
-              if (appState.estacaoOrigem.isEmpty || appState.estacaoDestino.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Selecione ambas as estações de origem e destino.")),
-                );
-                return;
-              }
-              if (appState.estacaoOrigem == appState.estacaoDestino) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Estação de origem e destino não podem ser iguais.")),
-                );
-                return;
-              }
-              if (startTime == null || endTime == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Selecione intervalo de horas.")),
-                );
-                return;
-              }
-
-              final sMin = startTime!.hour * 60 + startTime!.minute;
-              final eMin = endTime!.hour * 60 + endTime!.minute;
-
-              if (sMin >= eMin) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Hora início deve ser antes da hora fim.")),
-                );
-                return;
-              }
-
-              // Save history if user logged in
-              if (user != null) {
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user.uid)
-                    .collection('history')
-                    .add({
-                  'origem': appState.estacaoOrigem,
-                  'destino': appState.estacaoDestino,
-                  'startTime': startTime!.toIso8601String(),
-                  'endTime': endTime!.toIso8601String(),
-                  'timestamp': FieldValue.serverTimestamp(),
-                });
-              }
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => DetailScreen(comboio: comboio),
-                ),
-              );
-            },
-            child: Text("Ver Comboios"),
-          ),
-        ],
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: _onConfirm,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xff125425),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Ver Comboios'),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-

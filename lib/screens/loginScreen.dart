@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
-        errorMessage = "Please enter email and password.";
+        errorMessage = "Preencha o email e a password";
       });
       return;
     }
@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = "Login failed: ${e.toString()}";
+        errorMessage = "Login falhado: ${e.toString()}";
       });
     }
   }
@@ -74,16 +74,19 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: _isLoggedIn
-            ? Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("You are already logged in."),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _logout,
-              child: const Text("Log out"),
-            ),
-          ],
+            ? Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Utilizador já se encontra logged in."),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _logout,
+                child: const Text("Log out"),
+              ),
+            ],
+          ),
         )
             : Column(
           children: [
@@ -101,10 +104,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 errorMessage!,
                 style: const TextStyle(color: Colors.red),
               ),
+            SizedBox(height: 12,),
             ElevatedButton(
               onPressed: _login,
               child: const Text("Login"),
             ),
+            SizedBox(height: 12,),
             TextButton(
               onPressed: () {
                 Navigator.push(
@@ -118,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 );
               },
-              child: const Text("Create account"),
+              child: const Text("Criar conta"),
             ),
           ],
         ),

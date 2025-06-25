@@ -11,6 +11,23 @@ class Schedule {
     );
   }
 
+  int get hour {
+    try {
+      return int.parse(tempo.split(':')[0]);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  int get minute {
+    try {
+      return int.parse(tempo.split(':')[1]);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+
   Map<String, dynamic> toMap() {
     return {
       'estacao': estacao,

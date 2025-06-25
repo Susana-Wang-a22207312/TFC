@@ -24,13 +24,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       setState(() {
-        errorMessage = "Please fill all fields.";
+        errorMessage = "Preencha todos os campos.";
       });
       return;
     }
     if (_passwordController.text != _confirmPasswordController.text) {
       setState(() {
-        errorMessage = "Passwords do not match.";
+        errorMessage = "As passwords não coincidem.";
       });
       return;
     }
@@ -51,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = "Registration failed: ${e.toString()}";
+        errorMessage = "Registo falhado: ${e.toString()}";
       });
     }
   }
@@ -59,16 +59,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Register")),
+      appBar: AppBar(title: const Text("Registar")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email")),
             TextField(controller: _passwordController, decoration: const InputDecoration(labelText: "Password"), obscureText: true),
-            TextField(controller: _confirmPasswordController, decoration: const InputDecoration(labelText: "Confirm Password"), obscureText: true),
+            TextField(controller: _confirmPasswordController, decoration: const InputDecoration(labelText: "Confirmar Password"), obscureText: true),
             if (errorMessage != null) Text(errorMessage!, style: const TextStyle(color: Colors.red)),
-            ElevatedButton(onPressed: _register, child: const Text("Register")),
+            SizedBox(height: 12,),
+            ElevatedButton(onPressed: _register, child: const Text("Registar")),
           ],
         ),
       ),
