@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
 
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0xADDFE0)),
         ),
-        home: MyHomePage(),
+        home: HomeScaffold(),
       ),
     );
   }

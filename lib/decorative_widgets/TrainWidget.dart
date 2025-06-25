@@ -4,8 +4,8 @@ import 'BulletTrainHeadRightClipper.dart';
 
 class TrainWidget extends StatelessWidget {
   final String schedule;
-  final List<int> carriages;
-  final int trainId;
+  final Map<String, int> carriages;
+  final String trainId;
   final VoidCallback onHorarioPressed;
 
   const TrainWidget({
@@ -19,10 +19,16 @@ class TrainWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    int minIndex = 0;
-    for (int i = 1; i < carriages.length; i++) {
-      if (carriages[i] < carriages[minIndex]) minIndex = i;
-    }
+
+    // Find the carriage with the lowest occupancy
+    String minCarriage = carriages.entries.first.key;
+    int minValue = carriages[minCarriage]!;
+    carriages.forEach((k, v) {
+      if (v < minValue) {
+        minCarriage = k;
+        minValue = v;
+      }
+    });
 
     return SizedBox(
       width: screenWidth * 0.95,
@@ -40,7 +46,6 @@ class TrainWidget extends StatelessWidget {
               ),
             ),
           ),
-          // Train row
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -53,9 +58,11 @@ class TrainWidget extends StatelessWidget {
                     color: Colors.blue.shade700,
                     child: Center(
                       child: Text(
-                        trainId.toString(),
+                        trainId,
                         style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -67,10 +74,10 @@ class TrainWidget extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: carriages.asMap().entries.map((entry) {
-                    int idx = entry.key;
-                    int percent = entry.value;
-                    bool isBest = idx == minIndex;
+                  children: carriages.entries.map((entry) {
+                    final carriageId = entry.key;
+                    final percent = entry.value;
+                    final isBest = carriageId == minCarriage;
                     return Expanded(
                       child: Stack(
                         clipBehavior: Clip.none,
@@ -82,10 +89,9 @@ class TrainWidget extends StatelessWidget {
                               color: Colors.blue.shade50,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                  color: isBest
-                                      ? Colors.amber
-                                      : Colors.blue.shade200,
-                                  width: isBest ? 2 : 1),
+                                color: isBest ? Colors.amber : Colors.blue.shade200,
+                                width: isBest ? 2 : 1,
+                              ),
                             ),
                             child: Stack(
                               children: [
@@ -100,7 +106,7 @@ class TrainWidget extends StatelessWidget {
                                         borderRadius: percent == 100
                                             ? BorderRadius.circular(16)
                                             : const BorderRadius.vertical(
-                                                bottom: Radius.circular(16)),
+                                            bottom: Radius.circular(16)),
                                       ),
                                     ),
                                   ),
@@ -109,9 +115,10 @@ class TrainWidget extends StatelessWidget {
                                   child: Text(
                                     "$percent%",
                                     style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -123,9 +130,11 @@ class TrainWidget extends StatelessWidget {
                             right: 0,
                             child: Center(
                               child: Text(
-                                "Carruagem ${idx + 1}",
+                                "Carruagem $carriageId",
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 14),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ),
@@ -137,8 +146,7 @@ class TrainWidget extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: const [
-                                  Icon(Icons.star,
-                                      color: Colors.amber, size: 20),
+                                  Icon(Icons.star, color: Colors.amber, size: 20),
                                   SizedBox(width: 4),
                                   Text(
                                     'Recomendado',
@@ -169,7 +177,9 @@ class TrainWidget extends StatelessWidget {
                       child: Text(
                         schedule,
                         style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -181,7 +191,9 @@ class TrainWidget extends StatelessWidget {
                 height: 100,
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                    onPressed: onHorarioPressed, child: const Text("Horário")),
+                  onPressed: onHorarioPressed,
+                  child: const Text("Horário"),
+                ),
               ),
             ],
           ),

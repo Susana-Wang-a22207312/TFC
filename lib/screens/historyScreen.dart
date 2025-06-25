@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:namer_app/screens/homeScreen.dart';
 import 'package:provider/provider.dart';
-
-import 'homeScreen.dart';
 
 class HistoryScreen extends StatelessWidget {
   @override
@@ -71,7 +70,7 @@ class HistoryScreen extends StatelessWidget {
                 trailing: Icon(Icons.repeat),
                 onTap: () {
                   final appState = context.read<MyAppState>();
-                  appState.selectStation(data['origem']);
+                  appState.selectOrigin(data['origem']);
                   appState.selectDestination(data['destino']);
                   Navigator.pop(context);
                 },

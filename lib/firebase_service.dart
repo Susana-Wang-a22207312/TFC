@@ -4,15 +4,30 @@ import 'models/Comboio.dart';
 class FirebaseService {
   final _db = FirebaseFirestore.instance;
 
-  Future<List<Comboio>> fetchComboiosForStation(String station) async {
-    final snap = await _db
-        .collection('Comboio')
-        .where('linha de sintra', arrayContains: station) // requires 'estacoes' array in Firestore docs
-        .get();
+  Future<List<Comboio>> fetchComboiosWithStations(String origem, String destino) async {
+    final snapshot = await _db.collection('Comboio').get();
 
-    print("encontrei ${snap.docs.length} documentos");
-
-    return snap.docs.map((d) => Comboio.fromFirestore(d)).toList();
+    return snapshot.docs
+        .map((doc) => Comboio.fromFirestore(doc))
+        .where((comboio) {
+      final estacoes = comboio.temposChegada.map((s) => s.estacao).toList();
+      final origemIndex = estacoes.indexOf(origem);
+      final destinoIndex = estacoes.indexOf(destino);
+      return origemIndex >= 0 && destinoIndex >= 0 && origemIndex < destinoIndex;
+    })
+        .toList();
   }
+  Future<List<String>> fetchAllStations() async {
+    final snapshot = await _db.collection('Comboio').get();
 
+    final stations = <String>{};
+    for (var doc in snapshot.docs) {
+      final comboio = Comboio.fromFirestore(doc);
+      comboio.temposChegada.forEach((schedule) {
+        stations.add(schedule.estacao);
+      });
+    }
+
+    return stations.toList()..sort();
+  }
 }
