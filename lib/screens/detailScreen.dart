@@ -69,7 +69,7 @@ class DetailScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text('Comboios encontrados')),
+      appBar: AppBar(title: Text('Comboios encontrados', style: TextStyle(fontWeight: FontWeight.bold))),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: sortedComboios.length,

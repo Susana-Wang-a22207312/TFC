@@ -26,7 +26,7 @@ class CarriageDetailPage extends StatelessWidget {
     final avgOccupancy = comboio.occupancyPercent;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Detalhes do Comboio")),
+      appBar: AppBar(title: Text("Detalhes do Comboio", style: TextStyle(fontWeight: FontWeight.bold))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
