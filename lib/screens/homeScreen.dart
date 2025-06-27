@@ -75,7 +75,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
       appBar: AppBar(
           title: FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text('Aplicação de Recomendação de Carruagens'))),
+              child: Text('Aplicação de Recomendação de Carruagens', style: TextStyle(fontWeight: FontWeight.bold),))),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
