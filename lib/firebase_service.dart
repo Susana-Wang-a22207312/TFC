@@ -17,6 +17,7 @@ class FirebaseService {
     })
         .toList();
   }
+
   Future<List<String>> fetchAllStations() async {
     final snapshot = await _db.collection('Comboio').get();
 
@@ -38,7 +39,7 @@ class FirebaseService {
       String origem,
       String destino,
       ) {
-    // Build windows in minutes since midnight:
+
     int? partidaStartMin, partidaEndMin;
     if (partidaPicked != null) {
       partidaStartMin = partidaPicked.hour * 60 + partidaPicked.minute;
@@ -49,16 +50,8 @@ class FirebaseService {
       chegadaEndMin = chegadaPicked.hour * 60 + chegadaPicked.minute;
       chegadaStartMin = chegadaEndMin - 30;
     }
-    // Optional early check: if both windows exist but invalid order, return empty:
-    if (partidaStartMin != null && chegadaEndMin != null) {
-      if (partidaStartMin >= chegadaEndMin) {
-        // no train can match if partida window starts at/after earliest chegada
-        return [];
-      }
-    }
 
     return comboios.where((train) {
-      // Collect all time strings at origem and destino:
       final partidaTimes = train.temposChegada
           .where((s) => s.estacao == origem)
           .map((s) => s.tempo)
@@ -68,7 +61,7 @@ class FirebaseService {
           .map((s) => s.tempo)
           .toList();
 
-      // If train does not stop at origem or destino, exclude:
+
       if (partidaTimes.isEmpty || chegadaTimes.isEmpty) return false;
 
       // Check partida window: if no partidaPicked, always true; else any time in window
@@ -85,7 +78,6 @@ class FirebaseService {
     }).toList();
   }
 
-  /// Parse "HH:mm" into minutes since midnight. Returns null if invalid format.
   int? _parseTimeToMinutes(String timeStr) {
     final parts = timeStr.split(':');
     if (parts.length != 2) return null;
@@ -95,7 +87,6 @@ class FirebaseService {
     return h * 60 + m;
   }
 
-  /// Check if timeStr ("HH:mm") falls within [startMin..endMin] inclusive.
   bool _isInWindow(String timeStr, int startMin, int endMin) {
     final minutes = _parseTimeToMinutes(timeStr);
     if (minutes == null) return false;

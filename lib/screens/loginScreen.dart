@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   MaterialPageRoute(
                     builder: (context) => RegisterScreen(
                       onRegistered: () {
-                        Navigator.pop(context); // Return to login screen after register
+                        Navigator.pop(context);
                       },
                     ),
                   ),

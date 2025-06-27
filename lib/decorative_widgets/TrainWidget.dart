@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'RailDivider.dart';
-
 class TrainWidget extends StatelessWidget {
   final String schedule;
   final Map<String, int> carriages;
@@ -32,7 +30,6 @@ class TrainWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Train ID header
               Padding(
                 padding: const EdgeInsets.only(bottom: 10, left: 8),
                 child: Text(
@@ -81,7 +78,6 @@ class TrainWidget extends StatelessWidget {
                                 ),
                               ),
 
-                            // Occupancy bar with rounded top
                             Container(
                               height: 100,
                               decoration: BoxDecoration(

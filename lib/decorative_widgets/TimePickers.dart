@@ -58,11 +58,13 @@ class TimePickers extends StatelessWidget {
     return Column(
       children: [
         ElevatedButton(
+          key: Key('startTimePicker'),
           onPressed: () => _pickTime(context, startTime, onStartTimeChanged),
           child: Text(startTime == null ? 'Selecionar hora de partida' : 'Partida: ${hourFormat.format(startTime!)}'),
         ),
         const SizedBox(height: 16),
         ElevatedButton(
+          key: Key('endTimePicker'),
           onPressed: () => _pickTime(context, endTime, onEndTimeChanged),
           child: Text(endTime == null ? 'Selecionar hora de chegada' : 'Chegada: ${hourFormat.format(endTime!)}'),
         ),

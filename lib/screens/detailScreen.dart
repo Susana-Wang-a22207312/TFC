@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../decorative_widgets/TrainListWidget.dart';
 import '../models/Comboio.dart';
-import '../models/Schedule.dart';
 import 'CarriageDetailScreen.dart';
 
 class DetailScreen extends StatelessWidget {
@@ -46,7 +45,8 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Copy and sort
+
+    // ordenar comboios
     final sortedComboios = List<Comboio>.from(comboios);
     sortedComboios.sort((a, b) {
       int? aOrigMin = _getMinutesAtStation(a, selectedOrigem);
@@ -75,7 +75,7 @@ class DetailScreen extends StatelessWidget {
         itemCount: sortedComboios.length,
         itemBuilder: (context, index) {
           final comboio = sortedComboios[index];
-          // Retrieve times
+
           final partidaHora = _getTimeAtStation(comboio, selectedOrigem) ?? '—';
           final chegadaHora = _getTimeAtStation(comboio, selectedDestino) ?? '—';
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class StationSelector extends StatelessWidget {
   final List<String> stations;
@@ -27,6 +26,7 @@ class StationSelector extends StatelessWidget {
         const Text('Selecionar estação de origem:'),
         // dropdown or search query?
         DropdownButton<String>(
+          key: Key('originField'),
           isExpanded: true,
           value: selectedOrigin.isNotEmpty ? selectedOrigin : null,
           hint: const Text('Estação de Origem'),
@@ -40,6 +40,7 @@ class StationSelector extends StatelessWidget {
         const SizedBox(height: 20),
         const Text('Selecionar estação de destino:'),
         DropdownButton<String>(
+          key: Key('destinationField'),
           isExpanded: true,
           value: selectedDestination.isNotEmpty ? selectedDestination : null,
           hint: const Text('Estação de Destino'),
