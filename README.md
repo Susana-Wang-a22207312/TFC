@@ -1,15 +1,33 @@
-# TFC — Aplicação móvel para recomendação de carruagens de comboios e metros com base em informação de ocupação 
+# Aplicação Móvel para Recomendação de Carruagens em Comboios com base em informação de ocupação
+
+Este projeto desenvolve uma aplicação que recomenda ao utilizador a carruagem com menor ocupação num comboio, promovendo uma distribuição mais equilibrada dos passageiros e melhorando a experiência de viagem.
+
+A aplicação permite também planear viagens ao sugerir opções de comboios com base na origem e destino indicados pelo utilizador, tornando o planeamento mais personalizado e eficiente.
+
+## Contexto e Motivação
+
+Inspirada em sistemas avançados de informação de ocupação usados em países como a China, esta solução pretende aliviar a sobrelotação em transportes públicos, especialmente em horas de ponta, aumentando o conforto e reduzindo atrasos.
+
+O foco é a rede de transportes de comboios suburbanos da área metropolitana de Lisboa, sendo o projeto desenvolvido no âmbito da Licenciatura em Engenharia Informática, aplicando conceitos e tecnologias atuais.
+
+## Tecnologias Utilizadas
+
+- **Flutter**: Framework para desenvolvimento multiplataforma da interface móvel.
+- **Firebase Firestore**: Base de dados para armazenamento dos dados dos comboios e histórico dos utilizadores.
+- **Firebase Authentication**: Autenticação de utilizadores com login e criação de conta.
+- **Cloud Functions (Firebase)**: Funções backend para gerar dados sintéticos dos comboios e atualização automática.
 
 
-Este projeto consiste no desenvolvimento de uma aplicação relacionada com o sistema de comboios que recomenda ao utilizador uma carruagem do comboio com a menor percentagem de lotação de pessoas, promovendo uma distribuição mais equilibrada dos passageiros ao longo do comboio e com o objetivo de melhorar a experiência de mobilidade dos passageiros. Além disso, a aplicação sugere opções de comboios disponíveis com base na origem e no destino indicados pelo utilizador, permitindo um planeamento de viagem mais eficiente e personalizado.  
-  
+## Funcionalidades Principais
 
-Inspirada em sistemas automatizados como o implementado na China, que indicam a percentagem de ocupação em transportes públicos, esta solução visa promover o conforto e a conveniência dos passageiros, ao mesmo tempo que reduz atrasos e problemas associados à sobrelotação, especialmente em períodos de maior afluência.   
-  
+- Recomendação da carruagem menos ocupada com base em dados de ocupação.
+- Planeamento de viagem por seleção de origem e destino.
+- Consulta de horários e seleção de comboios específicos.
+- Autenticação via Firebase para histórico e personalização.
+- Visualização detalhada da ocupação por carruagem.
+- Filtros por horários de partida e/ou chegada.
 
-O projeto será desenvolvido no âmbito da Licenciatura em Engenharia Informática (LEI), aplicando conhecimentos obtidos ao longo do percurso académico e terá como foco a rede de transportes da zona metropolitana de Lisboa. Esta iniciativa alia inovação tecnológica a uma abordagem prática para enfrentar desafios de mobilidade urbana, contribuindo para um sistema de transporte público mais eficiente e atrativo.  
+## Demonstração
 
-
-Link: https://youtu.be/J07pDKvIl54?si=aEzVrGwnSJQ8ziYs \
-O seguinte link dirige a um vídeo de demonstração do projeto. É aconselhado ver o vídeo com legendas para ter a experiência completa!
-
+Para uma visão geral da aplicação em funcionamento, consulte o vídeo demonstrativo:  
+[Vídeo de Demonstração](https://youtu.be/bEW2YQw8kQE) 
