@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../decorative_widgets/StationSelector.dart';
 import '../decorative_widgets/TimePickers.dart';
@@ -8,7 +7,6 @@ import '../services/auth_service.dart';
 import 'detailScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/Comboio.dart';
 import 'historyScreen.dart';
 import 'loginScreen.dart';
 
@@ -90,7 +88,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
               title: Text('Home'),
               onTap: () {
                 Navigator.pop(context);
-                // Optional: If you want to navigate to HomeScreen or refresh it
+
               },
             ),
             ListTile(
@@ -169,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final partidaPicked = appState.startTime;
     final chegadaPicked = appState.endTime;
 
-    // 1) Validate stations
+
     if (origem.isEmpty || destino.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -185,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // 2) Validate at least one time
+
     if (partidaPicked == null && chegadaPicked == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -194,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       return;
     }
-    // 3) If both times picked, ensure partida < chegada
+
     if (partidaPicked != null && chegadaPicked != null) {
       final sMin = partidaPicked.hour * 60 + partidaPicked.minute;
       final eMin = chegadaPicked.hour * 60 + chegadaPicked.minute;
@@ -208,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    // 4) Fetch station-filtered trains
+    //filtro de rotas válidas
     final stationFiltered =
         await firebaseService.fetchComboiosWithStations(origem, destino);
     if (stationFiltered.isEmpty) {
@@ -219,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // 5) Filter by time windows
+    // filtro  hora
     final filtered = firebaseService.filterComboiosByTime(
       stationFiltered,
       partidaPicked,
@@ -235,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // 6) Save to history if user logged in
+    //  guardar no histórico
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await FirebaseFirestore.instance
@@ -251,7 +249,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-    // 7) Navigate to details
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -295,6 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
+              key: Key('submitButton'),
               onPressed: _onConfirm,
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,

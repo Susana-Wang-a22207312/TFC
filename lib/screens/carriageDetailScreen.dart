@@ -30,7 +30,6 @@ class CarriageDetailPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Green card: linha + origem/linha + botão horário
           Card(
             color: Colors.green.shade100,
             elevation: 3,
@@ -111,9 +110,6 @@ class CarriageDetailPage extends StatelessWidget {
           ),
 
           SizedBox(height: 16),
-
-          // Focused route: selectedOrigem → selectedDestino with times
-          // Focused route: selectedOrigem → selectedDestino with times
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -129,7 +125,7 @@ class CarriageDetailPage extends StatelessWidget {
                       color: Colors.grey.shade700,
                     ),
                   ),
-                  SizedBox(height: 12), // reduced from 16
+                  SizedBox(height: 12),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -190,7 +186,6 @@ class CarriageDetailPage extends StatelessWidget {
 
           SizedBox(height: 20),
 
-          // Train layout
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: TrainWidget(

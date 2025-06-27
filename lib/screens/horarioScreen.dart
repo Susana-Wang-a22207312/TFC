@@ -26,17 +26,17 @@ class horarioScreen extends StatelessWidget {
           return ListTile(
             leading: Icon(
               Icons.access_time,
-              color: isSelected ? Colors.blue : null, // Ícone azul para a estação escolhida
+              color: isSelected ? Colors.blue : null,
             ),
             title: Text(
               stop.estacao,
               style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, // Texto em negrito
-                color: isSelected ? Colors.blue : null, // Texto azul para destaque
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.blue : null,
               ),
             ),
             subtitle: Text("Horário: ${stop.tempo}"),
-            tileColor: isSelected ? Colors.blue.shade50 : null, // Fundo diferente
+            tileColor: isSelected ? Colors.blue.shade50 : null,
           );
         },
       ),

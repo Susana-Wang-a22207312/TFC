@@ -53,7 +53,6 @@ class TrainListWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top row: Linha and a detalhes icon
             Row(
               children: [
                 Icon(Icons.train, color: Colors.green.shade700),
@@ -72,13 +71,10 @@ class TrainListWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-
-            // If selected stations provided, show them with times
             if (selectedOrigem != null && selectedDestino != null) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Origem + time
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -98,16 +94,12 @@ class TrainListWidget extends StatelessWidget {
                       ],
                     ],
                   ),
-
-                  // Rail divider
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: RailDivider(),
                     ),
                   ),
-
-                  // Destino + time
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -131,7 +123,6 @@ class TrainListWidget extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ] else
-              // If no selected stations passed, show default orig/dest
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -165,8 +156,6 @@ class TrainListWidget extends StatelessWidget {
               ),
 
             const SizedBox(height: 12),
-
-            // Recommended carriage info
             Row(
               children: [
                 Icon(Icons.star, color: Colors.amber.shade600, size: 20),

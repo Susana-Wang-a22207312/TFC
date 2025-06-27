@@ -6,13 +6,12 @@ class AuthService {
   // Stream to listen to auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // Register user
+
   Future<User?> registerWithEmail(String email, String password) async {
     final cred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
     return cred.user;
   }
 
-  // Login user
   Future<User?> loginWithEmail(String email, String password) async {
     final cred = await _auth.signInWithEmailAndPassword(email: email, password: password);
     return cred.user;
@@ -22,11 +21,9 @@ class AuthService {
     return FirebaseAuth.instance.currentUser;
   }
 
-  // Logout user
   Future<void> logout() async {
     await _auth.signOut();
   }
 
-  // Get current user UID
   String? get currentUserId => _auth.currentUser?.uid;
 }

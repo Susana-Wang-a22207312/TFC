@@ -10,7 +10,6 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
-    // Always return a Scaffold so AppBar/back button appears
     return Scaffold(
       appBar: AppBar(title: Text('Histórico de Viagens')),
       body: user == null
@@ -83,6 +82,7 @@ class HistoryScreen extends StatelessWidget {
               subtitle: Text('De $formattedStart $formattedEnd'),
               trailing: Icon(Icons.repeat),
               onTap: () {
+                Key('autocompleteButton');
                 final appState = context.read<MyAppState>();
                 appState.selectOrigin(data['origem']);
                 appState.selectDestination(data['destino']);
